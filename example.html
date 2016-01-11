@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Bounding Areas</title>
+  </head>
+
+  <body>
+    <canvas id=canvas width=256 height=256>
+    </canvas>
+
+    <script type=text/javascript src=bounding.js></script>
+
+    <script type=text/javascript>
+      var canvas = document.getElementById("canvas"),
+          ctx    = canvas.getContext("2d"),
+          points = new Array(12),
+          box, circle, i;
+
+      for(i = 0; i < points.length; i++) {
+        points[i] = [
+          (0.25 + 0.5 * Math.random()) * canvas.width,
+          (0.25 + 0.5 * Math.random()) * canvas.height
+        ];
+      }
+
+      box    = bounding.box(points);
+      circle = bounding.circle(points);
+
+      ctx.fillStyle   = "red";
+      ctx.strokeStyle = "blue";
+
+      ctx.strokeRect(box[0], box[1], box[2] - box[0], box[3] - box[1]);
+
+      ctx.beginPath();
+      ctx.arc(circle[0], circle[1], circle[2], 0, 2.0 * Math.PI, false);
+      ctx.closePath();
+      ctx.stroke();
+
+      for(i = 0; i < points.length; i++) {
+        ctx.fillRect(points[i][0] - 2.0, points[i][1] - 2.0, 4.0, 4.0);
+      }
+    </script>
+  </body>
+</html>

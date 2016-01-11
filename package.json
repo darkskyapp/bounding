@@ -1,0 +1,12 @@
+{
+  "name": "bounding",
+  "version": "1.0.0",
+  "description": "calculate bounding areas of points",
+  "author": "J. T. L.",
+  "license": "CC0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ironwallaby/bounding.git"
+  },
+  "main": "bounding.js"
+}
