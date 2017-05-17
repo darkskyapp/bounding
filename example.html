@@ -5,39 +5,41 @@
   </head>
 
   <body>
-    <canvas id=canvas width=256 height=256>
+    <!-- I'm on a retina Mac, so double the resolution. -->
+    <canvas id=canvas width=640 height=640 style="width: 320px; height: 320px">
     </canvas>
 
     <script type=text/javascript src=bounding.js></script>
 
     <script type=text/javascript>
-      var canvas = document.getElementById("canvas"),
-          ctx    = canvas.getContext("2d"),
-          points = new Array(12),
-          box, circle, i;
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
 
-      for(i = 0; i < points.length; i++) {
+      const points = new Array(12);
+      for(let i = 0; i < points.length; i++) {
         points[i] = [
-          (0.25 + 0.5 * Math.random()) * canvas.width,
-          (0.25 + 0.5 * Math.random()) * canvas.height
+          (Math.random() * 0.5 + 0.25) * canvas.width,
+          (Math.random() * 0.5 + 0.25) * canvas.height
         ];
       }
 
-      box    = bounding.box(points);
-      circle = bounding.circle(points);
-
-      ctx.fillStyle   = "red";
       ctx.strokeStyle = "blue";
 
+      const box = bounding_box(points);
       ctx.strokeRect(box[0], box[1], box[2] - box[0], box[3] - box[1]);
 
+      const circle = bounding_circle(points);
       ctx.beginPath();
-      ctx.arc(circle[0], circle[1], circle[2], 0, 2.0 * Math.PI, false);
+      ctx.arc(circle[0], circle[1], circle[2], 0, Math.PI * 2, false);
       ctx.closePath();
       ctx.stroke();
 
-      for(i = 0; i < points.length; i++) {
-        ctx.fillRect(points[i][0] - 2.0, points[i][1] - 2.0, 4.0, 4.0);
+      ctx.fillStyle = "red";
+      for(const [x, y] of points) {
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI * 2, false);
+        ctx.closePath();
+        ctx.fill();
       }
     </script>
   </body>
