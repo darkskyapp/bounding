@@ -34,6 +34,15 @@
       ctx.closePath();
       ctx.stroke();
 
+      const hull = bounding_hull(points);
+      ctx.beginPath();
+      ctx.moveTo(hull[0][0], hull[0][1]);
+      for(let i = 1; i < hull.length; i++) {
+        ctx.lineTo(hull[i][0], hull[i][1]);
+      }
+      ctx.closePath();
+      ctx.stroke();
+
       ctx.fillStyle = "red";
       for(const [x, y] of points) {
         ctx.beginPath();

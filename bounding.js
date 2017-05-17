@@ -11,10 +11,6 @@ function bounding_box(points) {
   return aabb;
 }
 
-function bounding_convex_hull(points) {
-  /* FIXME */
-}
-
 function _circle_1([x, y]) {
   return [x, y, 0];
 }
@@ -74,7 +70,48 @@ function bounding_circle(points) {
   return _bounding_circle(Array.from(points), []);
 }
 
+function _lexicographically([ax, ay], [bx, by]) {
+  let t = ax - bx;
+  if(t === 0) {
+    t = ay - by;
+  }
+  return t;
+}
+
+function _cross([ax, ay], [bx, by], [cx, cy]) {
+  return (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
+}
+
+function bounding_hull(points) {
+  points = Array.from(points).sort(_lexicographically);
+
+  const u = [];
+  for(let i = 0; i < points.length; i++) {
+    while(u.length >= 2 && _cross(points[i], u[u.length - 2], u[u.length - 1]) >= 0) {
+      u.pop();
+    }
+    u.push(points[i]);
+  }
+
+  const l = [];
+  for(let i = points.length - 1; i >= 0; i--) {
+    while(l.length >= 2 && _cross(points[i], l[l.length - 2], l[l.length - 1]) >= 0) {
+      l.pop();
+    }
+    l.push(points[i]);
+  }
+
+  u.pop();
+  l.pop();
+  for(let i = 0; i < l.length; i++) {
+    u.push(l[i]);
+  }
+
+  return u;
+}
+
 if(typeof exports !== "undefined") {
   exports.box    = bounding_box;
   exports.circle = bounding_circle;
+  exports.hull   = bounding_hull;
 }
