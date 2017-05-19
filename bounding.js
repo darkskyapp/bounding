@@ -70,55 +70,51 @@ function bounding_circle(points) {
   return _bounding_circle(points, []);
 }
 
-function _quickhull(points, a, b, hull) {
-  const ax = points[(a << 1) | 0];
-  const ay = points[(a << 1) | 1];
-  const bx = points[(b << 1) | 0];
-  const by = points[(b << 1) | 1];
-  const ab = bx * ay - ax * by;
-
-  let c = -1;
-  let best_d = 0;
-  for(let i = 0; i < points.length; i++) {
-    if(i === a || i === b) {
-      continue;
-    }
-
-    const x = points[(i << 1) | 0];
-    const y = points[(i << 1) | 1];
-    const d = (by - ay) * x - (bx - ax) * y + ab;
-    if(d < best_d) {
-      c = i;
-      best_d = d;
-    }
+function _lexicographically([ax, ay], [bx, by]) {
+  let t = ax - bx;
+  if(t === 0) {
+    t = ay - by;
   }
-  if(c === -1) {
-    return;
-  }
+  return t;
+}
 
-  _quickhull(points, a, c, hull);
-  hull.push(points[(c << 1) | 0], points[(c << 1) | 1]);
-  _quickhull(points, c, b, hull);
+function _cw([ax, ay], [bx, by], [x, y]) {
+  return (ax - x) * (by - y) >= (ay - y) * (bx - x);
 }
 
 function bounding_hull(points) {
-  const hull = [];
   const n = points.length >> 1;
-
-  let min = 0;
-  let max = 0;
-  for(let i = 1; i < n; i++) {
-    if(points[i << 1] < points[min << 1]) min = i;
-    if(points[i << 1] > points[max << 1]) max = i;
+  const list = new Array(n);
+  for(let i = 0; i < n; i++) {
+    list[i] = [points[(i << 1) | 0], points[(i << 1) | 1]];
   }
+  list.sort(_lexicographically);
 
-  hull.push(points[(min << 1) | 0], points[(min << 1) | 1]);
-  if(min !== max) {
-    _quickhull(points, min, max, hull);
-    hull.push(points[(max << 1) | 0], points[(max << 1) | 1]);
-    _quickhull(points, max, min, hull);
+  const u = [];
+  for(let i = 0; i < list.length; i++) {
+    while(u.length >= 2 && _cw(u[u.length - 2], u[u.length - 1], list[i])) {
+      u.pop();
+    }
+    u.push(list[i]);
   }
+  u.pop();
 
+  const l = [];
+  for(let i = list.length - 1; i >= 0; i--) {
+    while(l.length >= 2 && _cw(l[l.length - 2], l[l.length - 1], list[i])) {
+      l.pop();
+    }
+    l.push(list[i]);
+  }
+  l.pop();
+
+  const hull = [];
+  for(const [x, y] of u) {
+    hull.push(x, y);
+  }
+  for(const [x, y] of l) {
+    hull.push(x, y);
+  }
   return hull;
 }
 
