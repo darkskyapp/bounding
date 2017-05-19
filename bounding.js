@@ -73,6 +73,8 @@ function bounding_circle(points) {
 }
 
 function bounding_hull(points) {
+  points = Array.from(points);
+
   const hull = [];
   const n = points.length >> 1;
 
