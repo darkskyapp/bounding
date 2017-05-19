@@ -70,39 +70,54 @@ function bounding_circle(points) {
   return _bounding_circle(points, []);
 }
 
+function _quickhull(points, a, b, hull) {
+  const ax = points[(a << 1) | 0];
+  const ay = points[(a << 1) | 1];
+  const bx = points[(b << 1) | 0];
+  const by = points[(b << 1) | 1];
+  const ab = bx * ay - ax * by;
+
+  let c = -1;
+  let best_d = 0;
+  for(let i = 0; i < points.length; i++) {
+    if(i === a || i === b) {
+      continue;
+    }
+
+    const x = points[(i << 1) | 0];
+    const y = points[(i << 1) | 1];
+    const d = (by - ay) * x - (bx - ax) * y + ab;
+    if(d < best_d) {
+      c = i;
+      best_d = d;
+    }
+  }
+  if(c === -1) {
+    return;
+  }
+
+  _quickhull(points, a, c, hull);
+  hull.push(points[(c << 1) | 0], points[(c << 1) | 1]);
+  _quickhull(points, c, b, hull);
+}
+
 function bounding_hull(points) {
   const hull = [];
   const n = points.length >> 1;
 
-  let l = 0;
+  let min = 0;
+  let max = 0;
   for(let i = 1; i < n; i++) {
-    if(points[i << 1] < points[l << 1]) {
-      l = i;
-    }
+    if(points[i << 1] < points[min << 1]) min = i;
+    if(points[i << 1] > points[max << 1]) max = i;
   }
 
-  let p = l;
-  do {
-    const px = points[(p << 1) | 0];
-    const py = points[(p << 1) | 1];
-    hull.push(px, py);
-    if(hull.length > points.length) {
-      throw new Error("infinite loop");
-    }
-
-    let q = 0;
-    for(let i = 1; i < n; i++) {
-      const qx = points[(q << 1) | 0];
-      const qy = points[(q << 1) | 1];
-      const ix = points[(i << 1) | 0];
-      const iy = points[(i << 1) | 1];
-      if((q === p) || (iy - py) * (qx - ix) - (ix - px) * (qy - iy) < 0) {
-        q = i;
-      }
-    }
-
-    p = q;
-  } while(p !== l);
+  hull.push(points[(min << 1) | 0], points[(min << 1) | 1]);
+  if(min !== max) {
+    _quickhull(points, min, max, hull);
+    hull.push(points[(max << 1) | 0], points[(max << 1) | 1]);
+    _quickhull(points, max, min, hull);
+  }
 
   return hull;
 }
