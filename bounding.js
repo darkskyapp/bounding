@@ -1,8 +1,6 @@
 "use strict";
 
-function bounding_box(points) {
-  const box = [+Infinity, +Infinity, -Infinity, -Infinity];
-
+function bounding_box(points, box=[Infinity, Infinity, -Infinity, -Infinity]) {
   for(let i = points.length; i--; ) {
     const x = points[i];
     const m = i & 1;
@@ -69,12 +67,10 @@ function _bounding_circle(p, q) {
 }
 
 function bounding_circle(points) {
-  return _bounding_circle(Array.from(points), []);
+  return _bounding_circle(points, []);
 }
 
 function bounding_hull(points) {
-  points = Array.from(points);
-
   const hull = [];
   const n = points.length >> 1;
 
