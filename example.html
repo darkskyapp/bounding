@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>Bounding Areas</title>
+    <meta charset=utf-8>
   </head>
 
   <body>
@@ -15,12 +16,12 @@
       const canvas = document.getElementById("canvas");
       const ctx = canvas.getContext("2d");
 
-      const points = new Array(12);
-      for(let i = 0; i < points.length; i++) {
-        points[i] = [
+      const points = [];
+      for(let i = 0; i < 12; i++) {
+        points.push(
           (Math.random() * 0.5 + 0.25) * canvas.width,
           (Math.random() * 0.5 + 0.25) * canvas.height
-        ];
+        );
       }
 
       ctx.strokeStyle = "blue";
@@ -36,17 +37,17 @@
 
       const hull = bounding_hull(points);
       ctx.beginPath();
-      ctx.moveTo(hull[0][0], hull[0][1]);
-      for(let i = 1; i < hull.length; i++) {
-        ctx.lineTo(hull[i][0], hull[i][1]);
+      ctx.moveTo(hull[0], hull[1]);
+      for(let i = 3; i < hull.length; i += 2) {
+        ctx.lineTo(hull[i - 1], hull[i]);
       }
       ctx.closePath();
       ctx.stroke();
 
       ctx.fillStyle = "red";
-      for(const [x, y] of points) {
+      for(let i = 1; i < points.length; i += 2) {
         ctx.beginPath();
-        ctx.arc(x, y, 4, 0, Math.PI * 2, false);
+        ctx.arc(points[i - 1], points[i], 4, 0, Math.PI * 2, false);
         ctx.closePath();
         ctx.fill();
       }
