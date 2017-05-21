@@ -1,12 +1,14 @@
 "use strict";
 
-function bounding_box(points, box=[Infinity, Infinity, -Infinity, -Infinity]) {
-  for(let i = points.length; i--; ) {
-    const x = points[i];
-    const m = i & 1;
-    const n = m | 2;
-    if(x < box[m]) box[m] = x;
-    if(x > box[n]) box[n] = x;
+function bounding_box(points=null, box=[Infinity, Infinity, -Infinity, -Infinity]) {
+  if(points) {
+    for(let i = points.length; i--; ) {
+      const x = points[i];
+      const m = i & 1;
+      const n = m | 2;
+      if(x < box[m]) box[m] = x;
+      if(x > box[n]) box[n] = x;
+    }
   }
 
   return box;
@@ -78,43 +80,36 @@ function _lexicographically([ax, ay], [bx, by]) {
   return t;
 }
 
-function _cw([ax, ay], [bx, by], [x, y]) {
+function _cw(ax, ay, bx, by, x, y) {
   return (ax - x) * (by - y) >= (ay - y) * (bx - x);
 }
 
 function bounding_hull(points) {
-  const n = points.length >> 1;
-  const list = new Array(n);
-  for(let i = 0; i < n; i++) {
-    list[i] = [points[(i << 1) | 0], points[(i << 1) | 1]];
+  const list = [];
+  for(let i = 1; i < points.length; i += 2) {
+    list.push([points[i - 1], points[i]]);
   }
   list.sort(_lexicographically);
 
-  const u = [];
-  for(let i = 0; i < list.length; i++) {
-    while(u.length >= 2 && _cw(u[u.length - 2], u[u.length - 1], list[i])) {
-      u.pop();
+  const hull = [list[0][0], list[0][1], list[1][0], list[1][1]];
+  for(let i = 2; i < list.length; i++) {
+    const [x, y] = list[i];
+    while(hull.length >= 4 && _cw(hull[hull.length - 4], hull[hull.length - 3], hull[hull.length - 2], hull[hull.length - 1], x, y)) {
+      hull.length -= 2;
     }
-    u.push(list[i]);
-  }
-  u.pop();
-
-  const l = [];
-  for(let i = list.length - 1; i >= 0; i--) {
-    while(l.length >= 2 && _cw(l[l.length - 2], l[l.length - 1], list[i])) {
-      l.pop();
-    }
-    l.push(list[i]);
-  }
-  l.pop();
-
-  const hull = [];
-  for(const [x, y] of u) {
     hull.push(x, y);
   }
-  for(const [x, y] of l) {
+  hull.push(list[list.length - 2][0], list[list.length - 2][1]);
+  const n = hull.length;
+  for(let i = list.length - 3; i >= 0; i--) {
+    const [x, y] = list[i];
+    while(hull.length >= n && _cw(hull[hull.length - 4], hull[hull.length - 3], hull[hull.length - 2], hull[hull.length - 1], x, y)) {
+      hull.length -= 2;
+    }
     hull.push(x, y);
   }
+  hull.length -= 2;
+
   return hull;
 }
 
